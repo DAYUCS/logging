@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-output
+  namespace: loki
+data:
+  fluentd.conf: |
+    # Ignore fluentd own events
+    <label @FLUENT_LOG>
+      <match fluent.*>
+        @type stdout
+      </match>
+    </label>
+
+    # TCP input to receive logs from
+    <source>
+      @type forward
+      bind 0.0.0.0
+      port 24224
+    </source>
+
+    # HTTP input for the liveness and readiness probes
+    <source>
+      @type http
+      bind 0.0.0.0
+      port 9880
+    </source>
+
+    # Throw the healthcheck to the standard output
+    <match fluentd.healthcheck>
+      @type stdout
+    </match>
+
+    # Send the logs to the standard output
+    <match fluend.**>
+      @type stdout
+    </match>
+
+    # Send the logs to the loki and the standard output    
+    <match kube.var.log.containers.**>
+      @type copy
+      <store>
+        @type loki
+        url "http://loki-grafana-loki-gateway:80"
+        <label>
+          stream
+          namespace
+          container
+          app
+          job
+          node
+          pod
+        </label>
+        line_format json
+        flush_interval 10s
+        flush_at_shutdown true
+        buffer_chunk_limit 5m
+      </store>
+      <store>
+        @type stdout
+      </store>
+    </match>
+
+    <match kube.var.log.containers.**fluentd**.log>
+      @type null
+    </match>
+
+    #<filter kubernetes.**>
+    #  @type kubernetes_metadata
+    #  @id filter_kube_metadata
+    #</filter>
+
+    <filter kube.var.log.containers.**>
+      @type record_transformer
+      enable_ruby true
+      renew_record true
+      # remove_keys kubernetes,docker
+
+      <record>
+        stream ${record.dig("stream")}
+        app ${record.dig("kubernetes","labels","app.kubernetes.io/name")}
+        job ${record.dig("kubernetes","labels","app")}
+        namespace ${record.dig("kubernetes","namespace_name")}
+        node ${record.dig("kubernetes","host")}
+        pod ${record.dig("kubernetes","pod_name")}
+        container ${record.dig("kubernetes","container_name")}
+      </record>
+    </filter>

@@ -43,13 +43,12 @@ data:
         @type loki
         url "http://loki-grafana-loki-gateway:80"
         <label>
-          stream
-          namespace
-          container
-          app
-          job
-          node
-          pod
+          stream $.stream
+          namespace $.kubernetes.namespace_name
+          container $.kubernetes.container_name
+          app $.kubernetes.labels.app
+          node $.kubernetes.host
+          pod $.kubernetes.pod_name
         </label>
         line_format json
         flush_interval 10s
@@ -70,19 +69,18 @@ data:
     #  @id filter_kube_metadata
     #</filter>
 
-    <filter kube.var.log.containers.**>
-      @type record_transformer
-      enable_ruby true
-      renew_record true
-      # remove_keys kubernetes,docker
+    #<filter kube.var.log.containers.**>
+    #  @type record_transformer
+    #  enable_ruby true
+    #  renew_record true
+    #  # remove_keys kubernetes,docker
 
-      <record>
-        stream ${record.dig("stream")}
-        app ${record.dig("kubernetes","labels","app.kubernetes.io/name")}
-        job ${record.dig("kubernetes","labels","app")}
-        namespace ${record.dig("kubernetes","namespace_name")}
-        node ${record.dig("kubernetes","host")}
-        pod ${record.dig("kubernetes","pod_name")}
-        container ${record.dig("kubernetes","container_name")}
-      </record>
-    </filter>
+    #  <record>
+    #    stream ${record.dig("stream")}
+    #    app ${record.dig("kubernetes","labels","app")}
+    #    namespace ${record.dig("kubernetes","namespace_name")}
+    #    node ${record.dig("kubernetes","host")}
+    #    pod ${record.dig("kubernetes","pod_name")}
+    #    container ${record.dig("kubernetes","container_name")}
+    #  </record>
+    #</filter>

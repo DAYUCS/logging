@@ -1,0 +1,32 @@
+2023-03-15 07: 21: 51.195475273 +0000 kube.var.log.containers.rook-ceph-mon-a-6ffdf76744-4zgtk_rook-ceph_mon-497907637e4c1463e275b640a6c86c077d0d3fdd03cdadf514d00df4ffcede92.log: {
+    "time": "2023-03-15T07:21:51.195475273Z",
+    "stream": "stderr",
+    "_p": "F",
+    "log": "cluster 2023-03-15T07:21:49.935358+0000 mgr.a (mgr.454130) 10160 : cluster [DBG] pgmap v10176: 121 pgs: 121 active+clean; 190 MiB data, 964 MiB used, 380 GiB / 381 GiB avail; 4.7 KiB/s wr, 1 op/s",
+    "kubernetes": {
+        "pod_name": "rook-ceph-mon-a-6ffdf76744-4zgtk",
+        "namespace_name": "rook-ceph",
+        "pod_id": "8b59f869-e09c-410a-8817-f52caa133375",
+        "labels": {
+            "app": "rook-ceph-mon",
+            "app.kubernetes.io/component": "cephclusters.ceph.rook.io",
+            "app.kubernetes.io/created-by": "rook-ceph-operator",
+            "app.kubernetes.io/instance": "a",
+            "app.kubernetes.io/managed-by": "rook-ceph-operator",
+            "app.kubernetes.io/name": "ceph-mon",
+            "app.kubernetes.io/part-of": "rook-ceph",
+            "ceph_daemon_id": "a",
+            "ceph_daemon_type": "mon",
+            "mon": "a",
+            "mon_cluster": "rook-ceph",
+            "pod-template-hash": "6ffdf76744",
+            "rook.io/operator-namespace": "rook-ceph",
+            "rook_cluster": "rook-ceph"
+        },
+        "host": "node3",
+        "container_name": "mon",
+        "docker_id": "497907637e4c1463e275b640a6c86c077d0d3fdd03cdadf514d00df4ffcede92",
+        "container_hash": "quay.io/ceph/ceph@sha256:0560b16bec6e84345f29fb6693cd2430884e6efff16a95d5bdd0bb06d7661c45",
+        "container_image": "quay.io/ceph/ceph:v17.2.5"
+    }
+}

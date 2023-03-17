@@ -36,9 +36,10 @@ data:
       @type stdout
     </match>
 
-    # Send the logs to the loki and the standard output    
-    <match kube.var.log.containers.**>
+    # Send the ops logs to the loki and the standard output    
+    <match ops.kube.var.log.containers.**>
       @type copy
+      @id output_copy_ops
       <store>
         @type loki
         url "http://loki-gateway:80"
@@ -61,27 +62,45 @@ data:
       </store>
     </match>
 
-    <match kube.var.log.containers.**fluentd**.log>
+    # Send the prod logs to the ES and the standard output    
+    <match ops.kube.var.log.containers.**>
+      @type copy
+      @id output_copy_prod
+      #<store>
+      #  @type elasticsearch_dynamic
+      #  @id output_elasticsearch_ops
+      #  host <elasticsearch-host>
+      #  port 9200
+      #  logstash_format true
+      #  logstash_prefix kube-ops.\${record['kubernetes']['namespace_name']}
+      #  <buffer>
+      #    @type file
+      #    path /opt/bitnami/fluentd/logs/buffers/ops-logs.buffer
+      #    flush_thread_count 2
+      #    flush_interval 5s
+      #  </buffer>
+      #</store>
+      <store>
+        @type stdout
+      </store>
+    </match>
+
+    # Throw away fluent & fluentd logs
+    <match kube.var.log.containers.**fluent**.log>
       @type null
     </match>
 
-    #<filter kubernetes.**>
-    #  @type kubernetes_metadata
-    #  @id filter_kube_metadata
-    #</filter>
-
-    #<filter kube.var.log.containers.**>
-    #  @type record_transformer
-    #  enable_ruby true
-    #  renew_record true
-    #  # remove_keys kubernetes,docker
-
-    #  <record>
-    #    stream ${record.dig("stream")}
-    #    app ${record.dig("kubernetes","labels","app")}
-    #    namespace ${record.dig("kubernetes","namespace_name")}
-    #    node ${record.dig("kubernetes","host")}
-    #    pod ${record.dig("kubernetes","pod_name")}
-    #    container ${record.dig("kubernetes","container_name")}
-    #  </record>
-    #</filter>
+    # Rewrite tags based on which namespace the logs come from
+    <match kube.var.log.containers.**>
+      @type rewrite_tag_filter
+      <rule>
+        key \$['kubernetes']['namespace_name']
+        pattern /^(rook-ceph|kube-system|kube-public|kube-node-[\S]+)$/
+        tag ops.\${tag}
+      </rule>
+      <rule>
+        key     \$['kubernetes']['namespace_name']
+        pattern /.+/
+        tag     prod.\${tag}
+      </rule>
+    </match>

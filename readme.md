@@ -1,17 +1,19 @@
 # Install Grafana Loki
 
 ```shell
-helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm upgrade --install loki bitnami/grafana-loki --values bitnami_loki_values.yaml  -n loki --create-namespace
+helm upgrade --install loki grafana/loki --values grafana_loki_values.yaml -n loki --create-namespace
 ```
 
 # Install Grafana
 
 ```shell
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
 helm upgrade --install grafana bitnami/grafana -n loki
 ```
-Open Grafana UI and set the datasource url to http://loki-grafana-loki-gateway:80
+Open Grafana UI and set the datasource url to http://loki-grafana-loki-gateway:80, and set the X-Scope-OrgID header to 1.
 
 # Install Fluentd
 

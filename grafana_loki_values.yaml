@@ -1,0 +1,25 @@
+loki:
+  server:
+    http_listen_port: 3100
+    grpc_listen_port: 9095
+    grpc_server_max_recv_msg_size: 52428800
+    grpc_server_max_send_msg_size: 52428800
+  ingester_client:
+    grpc_client_config:
+      max_recv_msg_size:52428800
+      max_send_msg_size:52428800
+  limits_config:
+    ingestion_rate_mb: 50
+    ingestion_burst_size_mb: 100
+    per_stream_rate_limit: 50MB
+    per_stream_rate_limit_burst: 100MB
+minio:
+  enabled: true
+gateway:
+  nginxConfig:
+    # -- Allows appending custom configuration to the server block
+    serverSnippet: |
+      client_max_body_size 50M;
+    # -- Allows appending custom configuration to the http block, passed through the `tpl` function to allow templating
+    #httpSnippet: |
+    #  client_max_body_size 50M;

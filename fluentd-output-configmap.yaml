@@ -41,7 +41,8 @@ data:
       @type copy
       <store>
         @type loki
-        url "http://loki-grafana-loki-gateway:80"
+        url "http://loki-gateway:80"
+        tenant 1
         <label>
           stream $.stream
           namespace $.kubernetes.namespace_name

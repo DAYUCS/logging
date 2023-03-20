@@ -36,6 +36,26 @@ data:
       @type stdout
     </match>
 
+    # Throw away fluent & fluentd logs
+    <match kube.var.log.containers.**fluent**.log>
+      @type null
+    </match>
+
+    # Rewrite tags based on which namespace the logs come from
+    <match kube.var.log.containers.**>
+      @type rewrite_tag_filter
+      <rule>
+        key $['kubernetes']['namespace_name']
+        pattern /^(rook-ceph|kube-[\S]+)$/
+        tag ops.${tag}
+      </rule>
+      <rule>
+        key $['kubernetes']['namespace_name']
+        pattern /^(default|loki[\S]+)$/
+        tag prod.${tag}
+      </rule>
+    </match>
+
     # Send the ops logs to the loki and the standard output    
     <match ops.kube.var.log.containers.**>
       @type copy
@@ -63,7 +83,7 @@ data:
     </match>
 
     # Send the prod logs to the ES and the standard output    
-    <match ops.kube.var.log.containers.**>
+    <match prod.kube.var.log.containers.**>
       @type copy
       @id output_copy_prod
       #<store>
@@ -83,24 +103,4 @@ data:
       <store>
         @type stdout
       </store>
-    </match>
-
-    # Throw away fluent & fluentd logs
-    <match kube.var.log.containers.**fluent**.log>
-      @type null
-    </match>
-
-    # Rewrite tags based on which namespace the logs come from
-    <match kube.var.log.containers.**>
-      @type rewrite_tag_filter
-      <rule>
-        key \$['kubernetes']['namespace_name']
-        pattern /^(rook-ceph|kube-system|kube-public|kube-node-[\S]+)$/
-        tag ops.\${tag}
-      </rule>
-      <rule>
-        key     \$['kubernetes']['namespace_name']
-        pattern /.+/
-        tag     prod.\${tag}
-      </rule>
     </match>

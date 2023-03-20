@@ -9,15 +9,15 @@ helm upgrade --install loki grafana/loki --values grafana_loki_values.yaml -n lo
 # Install Grafana
 
 ```shell
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update
-helm upgrade --install grafana bitnami/grafana -n loki
+helm upgrade --install grafana grafana/grafana -n loki
 ```
 Open Grafana UI and set the datasource url to http://loki-gateway:80, and set the X-Scope-OrgID header to 1.
 
 # Install Fluentd
 
 ```shell
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
 kubectl apply -f fluentd-output-configmap.yaml
 helm upgrade --install fluentd bitnami/fluentd --set forwarder.enabled=false --set aggregator.configMap=fluentd-output -n loki
 ```
